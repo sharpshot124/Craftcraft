@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 274a5be9b162b0e48a11cc76f5f6beee, type: 3}
+  m_Name: r2_Gem1_White
+  m_EditorClassIdentifier: 
+  name: r2_Gem1_White
+  Items:
+  - {fileID: 11400000, guid: 19a3b0a6173f50442a1dce68993a8945, type: 2}
+  - {fileID: 11400000, guid: 69fa0846833b1c34db660321270c0e05, type: 2}
+  - {fileID: 11400000, guid: b385833e76149fe45b62be0c0f206af4, type: 2}
+  ResultItems:
+  - {fileID: 11400000, guid: 37cddb39820a24d459d417a2310b7b7d, type: 2}
+  OnCraft:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
