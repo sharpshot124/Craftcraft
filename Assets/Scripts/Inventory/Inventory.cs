@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -46,12 +47,12 @@ public class Inventory : MonoBehaviour
         if (items.Contains(item))
             throw new ItemMismatchException("Item with same id is already contained in inventory!");
         //Validate position (check collisions)
-        BoundsInt destination = new BoundsInt(position.ToVector3Int(), item.Size.ToVector3Int());
+        BoundsInt destination = FindEmptyBounds(position, item.Size);
         Item collision = BoundsCollidesStorage(destination);
         if (collision != null)
             throw new InventoryCollisionException(collision);
 
-        item.Position = position;
+        item.Position = destination.position.ToVector2Int();
         items.Add(item);
         onAddItem.Invoke(item);
     }
@@ -85,29 +86,7 @@ public class Inventory : MonoBehaviour
 
     public void MoveItem(Item a, Item b)
     {
-        //Validate items exists in inventory
-        if (!items.Contains(a))
-            throw new ItemMismatchException("Item a not found in inventory!");
-        if (!items.Contains(b))
-            throw new ItemMismatchException("Item b not found in inventory!");
-
-        BoundsInt destination = a.Bounds;
-        destination.position = b.Position.ToVector3Int();
-
-        Item collision = BoundsCollidesStorage(destination, new List<Item> { a, b });
-        if (collision != null)
-            throw new InventoryCollisionException(collision);
-
-        destination = b.Bounds;
-        destination.position = a.Position.ToVector3Int();
-        collision = BoundsCollidesStorage(destination, new List<Item> { a, b });
-        if (collision != null)
-            throw new InventoryCollisionException(collision);
-
-        a.Position = b.Position;
-        b.Bounds = destination;
-        onMoveItem.Invoke(a);
-        onMoveItem.Invoke(b);
+        MoveItem(a, b.Position, b, a.Position);
     }
 
     public void MoveItem(Item a, Vector2Int destinationA, Item b, Vector2Int destinationB)
@@ -118,20 +97,28 @@ public class Inventory : MonoBehaviour
         if (!items.Contains(b))
             throw new ItemMismatchException("Item b not found in inventory!");
 
-        BoundsInt bounds = a.Bounds;
-        bounds.position = destinationA.ToVector3Int();
-        Item collision = BoundsCollidesStorage(bounds, new List<Item> { a, b });
-        if (collision != null)
-            throw new InventoryCollisionException(collision);
+        /*        //Check if item a fits
+                BoundsInt bounds = FindEmptyBounds(destinationA, a.Size);
+                Item collision = BoundsCollidesStorage(bounds, new List<Item> { a, b });
+                if (collision != null)
+                    throw new InventoryCollisionException(String.Format("Item collision with {0}", collision.itemName), collision);
+                a.Position = bounds.position.ToVector2Int();
 
-        bounds = b.Bounds;
-        bounds.position = destinationB.ToVector3Int();
-        collision = BoundsCollidesStorage(bounds, new List<Item> { a, b });
-        if (collision != null)
-            throw new InventoryCollisionException(collision);
+                //Check if item b fits
+                bounds = FindEmptyBounds(destinationB, b.Size);
+                collision = BoundsCollidesStorage(bounds, new List<Item> { a, b });
+                if (collision != null)
+                    throw new InventoryCollisionException(String.Format("Item collision with {0}", collision.itemName), collision);
 
-        a.Position = destinationA;
-        b.Position = destinationB;
+                //Swap positions
+                b.Position = destinationB;*/
+
+        DropItem(a);
+        DropItem(b);
+
+        AddItem(a, destinationA);
+        AddItem(b, destinationB);
+
         onMoveItem.Invoke(a);
         onMoveItem.Invoke(b);
     }
@@ -156,20 +143,26 @@ public class Inventory : MonoBehaviour
 
     BoundsInt FindEmptyBounds(Item item)
     {
-        return FindEmptyBounds(item.Size);
+        return FindEmptyBounds(item.Position, item.Size);
     }
 
     BoundsInt FindEmptyBounds(Vector2Int itemSize)
     {
-        if(itemSize.x > Size.x || itemSize.y > size.y)
+        return FindEmptyBounds(Vector2Int.zero, itemSize);
+    }
+
+    BoundsInt FindEmptyBounds(Vector2Int position, Vector2Int itemSize)
+    {
+        if (itemSize.x > Size.x || itemSize.y > size.y)
             throw new InventoryBoundsException(String.Format("Item is too large Item.Size = ({0},{1}); Inventory.Size = ({2},{3})", itemSize.x, itemSize.y, Size.x, Size.y));
 
+        List<BoundsInt> matches = new List<BoundsInt>();
         BoundsInt itemBounds = new BoundsInt();
         itemBounds.SetMinMax(Vector3Int.zero, itemSize.ToVector3Int());
 
-        for(int x = 0; x < (size.x - itemSize.x + 1); x++) //Loop from 0 to max position that item would still be in bounds - x axis
+        for (int x = 0; x < (size.x - itemSize.x + 1); x++) //Loop from 0 to max position that item would still be in bounds - x axis
         {
-            for(int y = 0; y < (size.y - itemSize.y + 1); y++) //Loop from 0 to max position that item would still be in bounds - y axis
+            for (int y = 0; y < (size.y - itemSize.y + 1); y++) //Loop from 0 to max position that item would still be in bounds - y axis
             {
                 itemBounds.position = new Vector3Int(x, y, 0);
                 itemBounds.size = itemSize.ToVector3Int();
@@ -177,10 +170,17 @@ public class Inventory : MonoBehaviour
                 if (BoundsCollidesStorage(itemBounds) != null)
                     continue;
 
-                return itemBounds;
+                matches.Add(itemBounds);
             }
         }
-        throw new InventoryCollisionException("No Valid Position Found");
+
+        if(matches.Count < 1)
+            throw new InventoryCollisionException("No Valid Position Found");
+
+        return matches.OrderBy((bounds) =>
+        {
+            return (position - bounds.position.ToVector2Int()).magnitude;
+        }).First();
     }
 
     Item BoundsCollidesStorage(BoundsInt item, List<Item> itemMask = null)

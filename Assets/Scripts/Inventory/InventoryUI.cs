@@ -251,63 +251,62 @@ public class InventoryUI : MonoBehaviour {
         }
 
         if (!target)
-            target = this;
+            //target = this
+            return;
 
-        try
+        var destination = target.GetCellInventoryPosition(data.position);
+        if (target == this) //Hovering over same inventory, move item position
         {
-            //Hovering over a different inventory, move item to new one
-            if (target != this)
+            try
             {
-                inventory.DropItem(item);
-                target.inventory.AddItem(item, target.GetCellInventoryPosition(data.position));
+                inventory.MoveItem(item, destination);
             }
-            //Hovering over same inventory, move item position
-            else
+            catch (InventoryCollisionException e)
             {
-                inventory.MoveItem(item, target.GetCellInventoryPosition(data.position));
-            }
-        }
-        //Swap item if dropped on another item and possible
-        catch (InventoryCollisionException e)
-        {
-            if (e.Item != null)
-            {
-                //Hovering over a different inventory, move item to new one
-                if (target != this)
+                //Another item is in the way, try to swap item positions
+                try
                 {
-                    //Drop other item
-                    target.inventory.DropItem(e.Item);
-
-                    //Re-add to opposite inventories
-                    inventory.AddItem(e.Item, item.Position);
-                    target.inventory.AddItem(item, target.GetCellInventoryPosition(data.position));
+                    inventory.MoveItem(item, destination, e.Item, item.Position);
                 }
-                //Hovering over same inventory, simply swap item positions
-                else
+                catch (InventoryCollisionException e2)
                 {
-                    try
-                    {
-                        inventory.MoveItem(item, GetCellInventoryPosition(data.position), e.Item, item.Position);
-                    }
-                    catch (InventoryCollisionException e2)
-                    {
-                        Debug.Log("Collided with " + e2.Item.itemName);
-                        DrawItems();
-                        return;
-                    }
+                    sprite.GetComponent<Image>().enabled = true;
+                    DrawItems();
+                    throw e2;
                 }
             }
-            else
+        }
+        else //Hovering over a different inventory, move item to new one
+        {
+            inventory.DropItem(item);
+            try
+            {                
+                target.inventory.AddItem(item, destination);
+            }
+            catch (InventoryCollisionException e)
             {
-                DrawItems();
-                throw;
+                target.inventory.DropItem(e.Item);
+
+                try
+                {
+                    inventory.AddItem(e.Item);
+                }
+                catch(InventoryCollisionException e2)
+                {
+                    //Swap failed return both items
+                    inventory.AddItem(item, item.Position);
+                    target.inventory.AddItem(e.Item, e.Item.Position);
+
+                    sprite.GetComponent<Image>().enabled = true;
+                    target.DrawItems();
+                    throw e2;
+                }
+
+                target.inventory.AddItem(item, destination);
             }
         }
-        catch (InventoryBoundsException)
-        {
-            sprite.GetComponent<Image>().enabled = true;
-        }
 
+        sprite.GetComponent<Image>().enabled = true;
         target.DrawItems();
     }
 
