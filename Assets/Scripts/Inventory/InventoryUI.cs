@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class InventoryUI : MonoBehaviour {
 
     private RectTransform transform2D;
-    private Dictionary<RectTransform, Item> items = new Dictionary<RectTransform, Item>();
+    private Dictionary<RectTransform, InventoryItem> items = new Dictionary<RectTransform, InventoryItem>();
     [SerializeField] private GameObject templateCell, templateItem;
     [SerializeField] private Inventory inventory;
     [SerializeField] private GridLayoutGroup cellContainer;
@@ -57,7 +57,7 @@ public class InventoryUI : MonoBehaviour {
     {
         DrawCells();
 
-        var existingItems = new List<Item>(items.Values);
+        var existingItems = new List<InventoryItem>(items.Values);
         foreach(var item in inventory.Items)
         {
             if(!existingItems.Contains(item))
@@ -163,7 +163,7 @@ public class InventoryUI : MonoBehaviour {
     /// Adds an item sprite based item input
     /// </summary>
     /// <param name="item"></param>
-    public void AddItem(Item item)
+    public void AddItem(InventoryItem item)
     {
         RectTransform spriteObj = Instantiate(templateItem).GetComponent<RectTransform>();
         Image sprite = spriteObj.GetComponent<Image>();
@@ -187,7 +187,7 @@ public class InventoryUI : MonoBehaviour {
     /// Repositions the sprite for the given item
     /// </summary>
     /// <param name="item"></param>
-    public void MoveItem(Item item)
+    public void MoveItem(InventoryItem item)
     {
         DrawItems();
     }
@@ -196,7 +196,7 @@ public class InventoryUI : MonoBehaviour {
     /// Destroys the sprite for a given item
     /// </summary>
     /// <param name="item"></param>
-    public void DropItem(Item item)
+    public void DropItem(InventoryItem item)
     {
         RectTransform sprite = items.GetKeyFromValue(item);
         items.Remove(sprite);
@@ -238,7 +238,9 @@ public class InventoryUI : MonoBehaviour {
             return;
 
         RectTransform sprite = data.pointerDrag.GetComponent<RectTransform>();
-        Item item = items[sprite];
+
+        InventoryItem item = items[sprite];
+        sprite.GetComponent<Image>().enabled = true;
 
         //Determine Target
         InventoryUI target = null;
@@ -306,7 +308,6 @@ public class InventoryUI : MonoBehaviour {
             }
         }
 
-        sprite.GetComponent<Image>().enabled = true;
         target.DrawItems();
     }
 

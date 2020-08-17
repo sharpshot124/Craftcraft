@@ -7,19 +7,19 @@ public class ItemGenerator : MonoBehaviour
     public Inventory inventory;
 
     [SerializeField]
-    private ItemSO contextMenuItem;
+    private Item contextMenuItem;
 
-    public static Item Generate(Item item)
+    public static InventoryItem Generate(InventoryItem item)
     {
-        return new Item(item);
+        return new InventoryItem(item);
     }
 
-    public void Generate(ItemSO item)
+    public void Generate(Item item)
     {
         if (!inventory)
             return;
 
-        inventory.AddItem(new Item(item));
+        inventory.AddItem(new InventoryItem(item));
     }
 
     [ContextMenu("Add Context Item to Inventory")]

@@ -13,11 +13,11 @@ public class InventoryContextPanel : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    public void Show(Item item)
+    public void Show(InventoryItem item)
     {
         gameObject.SetActive(true);
         title.text = item.displayName;
-        content.text = item.itemName;
+        content.text = item.description;
     }
 
     public void Hide()

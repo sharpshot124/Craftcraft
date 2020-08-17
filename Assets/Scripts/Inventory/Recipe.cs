@@ -8,31 +8,31 @@ using UnityEngine.Events;
 public class Recipe : ScriptableObject
 {
     public string Name;
-    public List<ItemSO> Items = new List<ItemSO>();
-    public List<ItemSO> ResultItems = new List<ItemSO>();
+    public List<Item> Items = new List<Item>();
+    public List<Item> ResultItems = new List<Item>();
     public UnityEvent OnCraft = new UnityEvent();
 
     public void CheckIsCompleted(Inventory inventory)
     {
-        Item[] items = inventory.Items.ToArray();
-        Item[] matches = new Item[Items.Count];
+        InventoryItem[] items = inventory.Items.ToArray();
+        InventoryItem[] matches = new InventoryItem[Items.Count];
         bool matchFound;
         Vector2Int offset;
         BoundsInt bounds;
 
-        foreach (Item item in inventory.Items)
+        foreach (InventoryItem item in inventory.Items)
         {
-            if (item.itemName == Items[0].Item.itemName && item.Size == Items[0].Item.Size)
+            if (item.itemName == Items[0].InventoryItem.itemName && item.Size == Items[0].InventoryItem.Size)
             {
-                offset = item.Position - Items[0].Item.Position;
-                bounds = new BoundsInt((Items[0].Item.Position + offset).ToVector3Int(), Items[0].Item.Size.ToVector3Int());
+                offset = item.Position - Items[0].InventoryItem.Position;
+                bounds = new BoundsInt((Items[0].InventoryItem.Position + offset).ToVector3Int(), Items[0].InventoryItem.Size.ToVector3Int());
                 matchFound = true;
                 matches[0] = item;
                 for (int r = 1; r < Items.Count; r++)
                 {
-                    bounds.position = Items[r].Item.Position.ToVector3Int() + offset.ToVector3Int();
-                    bounds.size = Items[r].Item.Size.ToVector3Int();
-                    if ((matches[r] = FindItem(items, Items[r].Item.itemName, bounds)) != null)
+                    bounds.position = Items[r].InventoryItem.Position.ToVector3Int() + offset.ToVector3Int();
+                    bounds.size = Items[r].InventoryItem.Size.ToVector3Int();
+                    if ((matches[r] = FindItem(items, Items[r].InventoryItem.itemName, bounds)) != null)
                     {
                         continue;
                     }
@@ -43,7 +43,7 @@ public class Recipe : ScriptableObject
 
                 if (matchFound)
                 {
-                    foreach (Item ingredient in matches)
+                    foreach (InventoryItem ingredient in matches)
                     {
                         inventory.DropItem(ingredient);
                     }
@@ -54,7 +54,7 @@ public class Recipe : ScriptableObject
                         {
                             if (i < matches.Length)
                             {
-                                inventory.AddItem(new Item(ResultItems[i]), matches[i].Position);
+                                inventory.AddItem(new InventoryItem(ResultItems[i]), matches[i].Position);
                             }
                             else
                             {
@@ -63,7 +63,7 @@ public class Recipe : ScriptableObject
                         }
                         catch (InventoryCollisionException)
                         {
-                            inventory.AddItem(new Item(ResultItems[i]));
+                            inventory.AddItem(new InventoryItem(ResultItems[i]));
                         }
                         OnCraft.Invoke();
                     }
@@ -73,9 +73,9 @@ public class Recipe : ScriptableObject
         }
     }
 
-    Item FindItem(Item[] items, string itemName, BoundsInt bounds)
+    InventoryItem FindItem(InventoryItem[] items, string itemName, BoundsInt bounds)
     {
-        foreach (Item item in items)
+        foreach (InventoryItem item in items)
         {
             if (item.itemName == itemName && item.Bounds == bounds)
             {

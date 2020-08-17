@@ -1,4 +1,4 @@
-﻿public class StackableItem : Item
+﻿public class StackableItem : InventoryItem
 {
     public int maxStackCount = 2;
     public int stackCount = 1;

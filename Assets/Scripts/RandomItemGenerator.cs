@@ -7,7 +7,7 @@ public class RandomItemGenerator : ItemGenerator
     public float spawnInterval;
     public float intervalVariance;
     public bool isSpawning = true;
-    public List<ItemSO> Items;
+    public List<Item> Items;
 
     private float nextSpawnTime;
 

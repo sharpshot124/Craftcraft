@@ -5,10 +5,10 @@ public class InventoryBoundsException : Exception { public InventoryBoundsExcept
 
 public class InventoryCollisionException : Exception
 {
-    public Item Item;
+    public InventoryItem Item;
 
-    public InventoryCollisionException(string message, Item item) : base(message) { Item = item; }
-    public InventoryCollisionException(Item item) { Item = item; }
+    public InventoryCollisionException(string message, InventoryItem item) : base(message) { Item = item; }
+    public InventoryCollisionException(InventoryItem item) { Item = item; }
     public InventoryCollisionException(string message) : base(message) { }
     public InventoryCollisionException() { }
 }

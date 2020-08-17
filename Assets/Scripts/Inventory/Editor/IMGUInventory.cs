@@ -13,7 +13,7 @@ public class IMGUInventory : Editor
         Rect fieldRect = new Rect();
 
         bool[,] emptyCells = GetEmptyCells(inventory);
-        ItemSO newItem;
+        Item newItem;
         for (int x = 0; x < inventory.Size.x; x++)
         {
             for (int y = 0; y < inventory.Size.y; y++)
@@ -29,7 +29,7 @@ public class IMGUInventory : Editor
                 if (GUI.Button(fieldRect, "null"))
                 {
                     itemPickerTarget = CantorEncode(c);
-                    EditorGUIUtility.ShowObjectPicker<ItemSO>(null, false, "", itemPickerTarget);
+                    EditorGUIUtility.ShowObjectPicker<Item>(null, false, "", itemPickerTarget);
                 }
                 /* newItem = (ItemSO) EditorGUI.ObjectField(fieldRect, null, typeof(ItemSO), false);
                 if (newItem != null)
@@ -48,7 +48,7 @@ public class IMGUInventory : Editor
             if (GUI.Button(fieldRect, inventory[i].sprite.GetTexture()))
             {
                 itemPickerTarget = CantorEncode(inventory[i].Position);
-                EditorGUIUtility.ShowObjectPicker<ItemSO>(inventory[i].itemSO, false, "", itemPickerTarget);
+                EditorGUIUtility.ShowObjectPicker<Item>(inventory[i].itemSO, false, "", itemPickerTarget);
             }
             //EditorGUI.DrawPreviewTexture(fieldRect, inventory[i].sprite.GetTexture());         
         }
@@ -65,16 +65,16 @@ public class IMGUInventory : Editor
         {
             var pos = CantorDecode(itemPickerTarget);
             Debug.Log(pos);
-            Item target = inventory.GetItem(pos);
+            InventoryItem target = inventory.GetItem(pos);
 
-            newItem = (ItemSO)EditorGUIUtility.GetObjectPickerObject();
+            newItem = (Item)EditorGUIUtility.GetObjectPickerObject();
 
             if (target != null)
             {
                 inventory.DropItem(target);
             }
 
-            if (newItem != null && inventory.GetItem(newItem.Item.Bounds, new List<Item> { target }) == null)
+            if (newItem != null && inventory.GetItem(newItem.InventoryItem.Bounds, new List<InventoryItem> { target }) == null)
             {
                 inventory.AddItem(newItem, pos);
             }

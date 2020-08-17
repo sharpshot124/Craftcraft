@@ -8,9 +8,9 @@ using UnityEngine.Events;
 
 public class Inventory : MonoBehaviour
 {
-    [SerializeField] private List<Item> items;
+    [SerializeField] private List<InventoryItem> items;
 
-    public ReadOnlyCollection<Item> Items
+    public ReadOnlyCollection<InventoryItem> Items
     {
         get { return items.AsReadOnly(); }
     }
@@ -31,7 +31,7 @@ public class Inventory : MonoBehaviour
     public InventoryItemEvent onDropItem;
     public UnityEvent onSizeChange;
 
-    public Item this[int index]
+    public InventoryItem this[int index]
     {
         get { return items[index]; }
     }
@@ -41,14 +41,14 @@ public class Inventory : MonoBehaviour
         Size = size;
     }
 
-    public void AddItem(Item item, Vector2Int position)
+    public void AddItem(InventoryItem item, Vector2Int position)
     {
         //Validate item is not a duplicate
         if (items.Contains(item))
             throw new ItemMismatchException("Item with same id is already contained in inventory!");
         //Validate position (check collisions)
         BoundsInt destination = FindEmptyBounds(position, item.Size);
-        Item collision = BoundsCollidesStorage(destination);
+        InventoryItem collision = BoundsCollidesStorage(destination);
         if (collision != null)
             throw new InventoryCollisionException(collision);
 
@@ -57,13 +57,13 @@ public class Inventory : MonoBehaviour
         onAddItem.Invoke(item);
     }
 
-    public void AddItem(Item item)
+    public void AddItem(InventoryItem item)
     {
         BoundsInt bounds = FindEmptyBounds(item);
         AddItem(item, bounds.position.ToVector2Int());
     }
 
-    public void MoveItem(Item item, Vector2Int position)
+    public void MoveItem(InventoryItem item, Vector2Int position)
     {
         //Validate item exists in inventory, else add it
         if (!items.Contains(item))
@@ -76,7 +76,7 @@ public class Inventory : MonoBehaviour
         destination.position = position.ToVector3Int();
 
         //Validate item doesn't collide with another item
-        Item collision = BoundsCollidesStorage(destination, new List<Item>() {item});
+        InventoryItem collision = BoundsCollidesStorage(destination, new List<InventoryItem>() {item});
         if (collision != null)
             throw new InventoryCollisionException(collision);
 
@@ -84,12 +84,12 @@ public class Inventory : MonoBehaviour
         onMoveItem.Invoke(item);
     }
 
-    public void MoveItem(Item a, Item b)
+    public void MoveItem(InventoryItem a, InventoryItem b)
     {
         MoveItem(a, b.Position, b, a.Position);
     }
 
-    public void MoveItem(Item a, Vector2Int destinationA, Item b, Vector2Int destinationB)
+    public void MoveItem(InventoryItem a, Vector2Int destinationA, InventoryItem b, Vector2Int destinationB)
     {
         //Validate items exists in inventory
         if (!items.Contains(a))
@@ -123,17 +123,17 @@ public class Inventory : MonoBehaviour
         onMoveItem.Invoke(b);
     }
 
-    public Item GetItem(Vector2Int position, List<Item> itemMask = null)
+    public InventoryItem GetItem(Vector2Int position, List<InventoryItem> itemMask = null)
     {
         return GetItem(new BoundsInt(position.ToVector3Int(), Vector3Int.one), itemMask);
     }
 
-    public Item GetItem(BoundsInt bounds, List<Item> itemMask = null)
+    public InventoryItem GetItem(BoundsInt bounds, List<InventoryItem> itemMask = null)
     {
         return BoundsCollidesStorage(bounds, itemMask);
     }
 
-    public void DropItem(Item item)
+    public void DropItem(InventoryItem item)
     {
         if (items.Contains(item))
             items.Remove(item);
@@ -141,7 +141,7 @@ public class Inventory : MonoBehaviour
         onDropItem.Invoke(item);
     }
 
-    BoundsInt FindEmptyBounds(Item item)
+    BoundsInt FindEmptyBounds(InventoryItem item)
     {
         return FindEmptyBounds(item.Position, item.Size);
     }
@@ -183,9 +183,9 @@ public class Inventory : MonoBehaviour
         }).First();
     }
 
-    Item BoundsCollidesStorage(BoundsInt item, List<Item> itemMask = null)
+    InventoryItem BoundsCollidesStorage(BoundsInt item, List<InventoryItem> itemMask = null)
     {
-        foreach(Item i in items)
+        foreach(InventoryItem i in items)
         {
             if (itemMask != null && itemMask.Contains(i))
                 continue;
@@ -196,10 +196,10 @@ public class Inventory : MonoBehaviour
         return null;
     }
 
-    Item GetItemAtPosition(Vector2Int position)
+    InventoryItem GetItemAtPosition(Vector2Int position)
     {
         BoundsInt b = new BoundsInt(position.ToVector3Int(), Vector3Int.one);
-        foreach (Item i in items)
+        foreach (InventoryItem i in items)
         {
             if (b.Intersects2D(i.Bounds))
                 return i;
@@ -209,4 +209,4 @@ public class Inventory : MonoBehaviour
 }
 
 [System.Serializable]
-public class InventoryItemEvent : UnityEvent<Item> { }
+public class InventoryItemEvent : UnityEvent<InventoryItem> { }

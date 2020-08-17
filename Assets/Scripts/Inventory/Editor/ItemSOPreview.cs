@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[CustomPreview(typeof(ItemSO))]
+[CustomPreview(typeof(Item))]
 public class ItemSOPreview : ObjectPreview
 {
     public override bool HasPreviewGUI()
@@ -17,7 +17,7 @@ public class ItemSOPreview : ObjectPreview
     {
         base.OnPreviewGUI(rect, background);
 
-        ItemSO item = (ItemSO) target;
-        GUI.DrawTexture(rect, item.Item.sprite.GetTexture());
+        Item item = (Item) target;
+        GUI.DrawTexture(rect, item.InventoryItem.sprite.GetTexture());
     }
 }

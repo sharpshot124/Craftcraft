@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -27,7 +28,7 @@ public static class InventoryExtensions
 
     public static void AddEvent(this EventTrigger trigger, EventTriggerType type, UnityAction<BaseEventData> callback)
     {
-        EventTrigger.Entry entry = new EventTrigger.Entry {eventID = type};
+        EventTrigger.Entry entry = new EventTrigger.Entry { eventID = type };
         entry.callback.AddListener(callback);
         trigger.triggers.Add(entry);
     }
@@ -53,4 +54,10 @@ public static class InventoryExtensions
         result.Apply();
         return result;
     }
+
+    public static string ToTitleCase(this string title)
+    {
+        return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(title.ToLower());
+    }
+
 }

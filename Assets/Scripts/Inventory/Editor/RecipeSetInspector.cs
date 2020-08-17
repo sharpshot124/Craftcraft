@@ -51,12 +51,12 @@ public class RecipeSetInspector : Editor
         {
             for(int i = 0; i < recipe.Items.Count; i++)
             {
-                recipe.Items[i] = (ItemSO)EditorGUILayout.ObjectField(recipe.Items[i], typeof(ItemSO), false);
+                recipe.Items[i] = (Item)EditorGUILayout.ObjectField(recipe.Items[i], typeof(Item), false);
             }
 
             if (GUILayout.Button("Add Ingredient"))
             {
-                ItemSO obj = CreateInstance<ItemSO>();
+                Item obj = CreateInstance<Item>();
                 if (!AssetDatabase.IsValidFolder("Assets/Prefabs/Recipes/" + recipe.Name))
                     AssetDatabase.CreateFolder("Assets/Prefabs/Recipes", recipe.Name);
                 AssetDatabase.CreateAsset(obj, string.Format("Assets/Prefabs/Recipes/{0}/{1}", recipe.Name, "NewItem.asset"));
@@ -69,7 +69,7 @@ public class RecipeSetInspector : Editor
         {
             for (int i = 0; i < recipe.ResultItems.Count; i++)
             {
-                recipe.ResultItems[i] = (ItemSO)EditorGUILayout.ObjectField(recipe.ResultItems[i], typeof(ItemSO), false);
+                recipe.ResultItems[i] = (Item)EditorGUILayout.ObjectField(recipe.ResultItems[i], typeof(Item), false);
             }
 
             if (GUILayout.Button("Add Result Item"))
